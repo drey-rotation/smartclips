@@ -1,0 +1,242 @@
+openapi: 3.0.0
+info:
+  title: SmartClips API
+  version: 1.0-2
+  description: >-
+    Provides access to the ClipGrabbers. 
+    
+    
+    There are two ways to get a Clip into Pub/Sub Topic from outside of the Cloud System:
+    
+      1.) Mastermind: 
+      
+        XML input to the Pub/Sub Topic destined for the ClipGrabber.
+          
+      2.) Systems (Future Cameras): 
+      
+        JSON input for the Pub/Sub Topic destined for the ClipGrabbers. Might be a future camera.
+          
+
+  contact:
+    name: Drew Reynaud
+servers:
+  # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/api-adt/smartclips-api/1.0-1
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/adt-api/SmartClipsApi/1.0-1
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/adt-api/SmartClips/1.0-1
+  - url: http://localhost:3000
+paths:
+  
+      
+  /alarm:
+    parameters: []
+    
+    post:
+      summary: >-
+        Given either an XML document or JSON payload of alarm events, retrieve the video clips from the configured providers and store them to the Lockbox. 
+        Mastermind interface.
+        
+      description: >-
+        Users of this interface are 1.) Mastermind.
+        
+      tags: []
+      operationId: post-alarm-mas
+      # consumes: 
+      #   - application/xml
+      #   - application/json
+      #     # "text/xml",
+      # produces: 
+      #   - text/plain"
+        
+      requestBody:
+        content:
+          'application/xml':
+            schema: 
+              $ref: '#/components/schemas/clipRequest'    
+          'application/json':
+            schema: 
+              $ref: '#/components/schemas/clipRequest'    
+          
+      responses:
+        '200':
+          description: The alarm has been accepted and stored into Lockbox.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/clipResponse'  
+
+        '400':
+            description: Access Denied to post the document. Provide valid credentials.
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: "Access Denied to post the document. Provide valid credentials."
+        '404':
+            description: Access Denied to post the document. Provide valid credentials.
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: "Access Denied to post the document. Provide valid credentials."
+        '401':
+            description: The clip processor has denied access.
+            content:
+              application/json:
+                schema:
+                  type: string
+                  example: "The clip processor has denied access."
+        '500':
+          description: The clip process has thrown an unknown error.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "The clip process has thrown an unknown error."
+
+
+
+x-extension-1: null
+
+components:
+
+  parameters:
+    csId:
+      name: csId
+      in: query
+      required: true
+      schema:
+        type: 'integer'
+      description: 'The system time (epoch milliseconds)'
+    serverId:
+      name: serverId
+      in: query
+      required: true
+      schema:
+        type: 'string'
+      description: 'The server identifier'
+    cameraId:
+      name: cameraId
+      in: query
+      required: true
+      schema:
+        type: 'string'
+      description: 'The camera identifier'
+    startDate:
+      name: startDate
+      in: 'query'
+      required: true
+      schema:
+        type: 'integer'
+      description: 'The system time (epoch milliseconds)'
+    endDate:
+      name: 'endDate'
+      in: 'query'
+      required: false
+      schema:
+        type: 'integer'
+      description: 'The system time (epoch milliseconds)'
+
+      
+  examples:
+  
+    request-example:
+      summary: An example of a Lockbox request based on csID and date
+      value:
+        csId: xxx-ooo-bbb
+        startDate: 27346467838937749478
+        endDate: 28e8929898ew98ew9898ew
+
+
+  schemas:
+  
+    clipRequest:
+      type: object
+      properties:
+        BaseURL:
+          type: string
+          example: https://staging-web.ivndev.com/incoming/mms
+        Username:
+          type: string
+          example: ADT
+        Password:
+          type: string
+        SystemNo:
+          type: integer
+          example: 3832
+        Command:
+          type: object
+          properties:
+            CommandName:
+              type: string
+              example: ADT_VVSig
+            Parameter:
+              type: array
+              items:
+                type: object
+                properties:
+                  ParameterName:
+                    type: string
+                    example: "CS#"
+                  ParameterValue:
+                    type: string
+                    example: "T510019999"
+              example:
+                - ParameterName: "CS#"
+                  ParameterVaue: "T510019999"
+                - ParameterName: "Incident"
+                  ParameterVaue: "2060510"
+                - ParameterName: "timestamp"
+                  ParameterValue: "Oct 28 2021  4:19PM"
+                - ParameterName: "zone"
+                  ParameterValue: 999
+                - ParameterName: "Comment1"
+                  ParameterValue: "Alarm Text:  Stock room door; ??Timestamp: 20:08:35,10-28-2021; ??"
+                - ParameterName: "Site Name"
+                  ParameterValue: "ADC DC-09 Signal Tests"
+                - ParameterName: "Address"
+                  ParameterValue: "990 S Rogers Cir"
+                - ParameterName: "Alarm Priority"
+                  ParameterValue: 3
+        CS#:
+          type: string
+        Incident:
+          type: string
+        timestamp:
+          type: integer
+          format: int32
+        zone:
+          type: string
+          format: integer
+        Comment1:
+          type: string
+        Site Name:
+          type: string
+        Address:
+          type: string
+        Alarm Priority:
+          type: integer
+          format: date-time
+
+      xml:
+        name: HTTPRequestStruct
+        
+    clipResponse:
+      type: object
+      properties:
+        CS#:
+          type: string
+        Incident:
+          type: string
+  
+  
+  securitySchemes:
+    APIKey1:
+      name: API Key
+      type: apiKey
+      in: header
